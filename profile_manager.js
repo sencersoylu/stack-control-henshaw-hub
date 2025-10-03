@@ -113,7 +113,8 @@ class ProfileManager {
 
     /**
      * Profili zaman serisine dönüştürür (Highcharts için)
-     * @returns {Array} [{x: zaman, y: basınç}, ...] formatında array
+     * Hava adımlarında `y` değeri `null`, oksijen adımlarında ise interpolasyonlu basınç döner.
+     * @returns {Array} [{x: zaman, y: basınç|null}, ...] formatında array
      */
     toTimeSeries() {
         const series = [];
