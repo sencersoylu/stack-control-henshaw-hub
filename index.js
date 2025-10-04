@@ -98,7 +98,7 @@ let sessionStatus = {
 	main_fsw: 0,
 	pcontrol: 0,
 	comp_offset: 6,
-	comp_gain: 8,
+	comp_gain: 7,
 	comp_depth: 100,
 	decomp_offset: 14,
 	decomp_gain: 7,
@@ -959,6 +959,7 @@ function read() {
 				compValve(0);
 				sessionStartBit(0);
 				doorOpen();
+				socket.emit('writeBit', { register: 'M0103', value: 0 });
 				sessionStatus.durum = 0;
 				sessionStatus.uyariyenile = 1;
 				sessionStatus.uyaridurum = 1;
@@ -1006,7 +1007,7 @@ function read() {
 					comp_offset: 12,
 					comp_gain: 8,
 					comp_depth: 100,
-					decomp_offset: 10,
+					decomp_offset: 14,
 					decomp_gain: 6,
 					decomp_depth: 100,
 					chamberStatus: 1,
@@ -1615,7 +1616,7 @@ function compValve(angle) {
 	// 	val: send,
 	// });
 
-	var send = linearConversion(4000, 16383, 0, 90, angle, 0); //(32767/90derece)
+	var send = linearConversion(3000, 16383, 0, 90, angle, 0); //(32767/90derece)
 
 	socket.emit(
 		'writeRegister',
