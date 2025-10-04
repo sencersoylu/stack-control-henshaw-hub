@@ -79,7 +79,7 @@ let sessionStatus = {
 	ilksure: 0,
 	ilkfsw: 0,
 	fswd: 0,
-        pauseDepth: 0,
+	pauseDepth: 0,
 	doorSensorStatus: 0,
 	doorStatus: 0,
 	pressure: 0,
@@ -144,7 +144,7 @@ async function init() {
 		socket = io.connect('http://localhost:4000', { reconnect: true });
 		socket.on('connect', function () {
 			console.log('Connected to server');
-			//doorOpen();
+			doorOpen();
 			compValve(0);
 			decompValve(0);
 			sessionStartBit(0);
@@ -349,7 +349,7 @@ async function init() {
 				});
 			} else if (dt.type == 'sessionStop') {
 				compValve(0);
-				//doorOpen();
+				doorOpen();
 
 				sessionStop();
 				socket.emit('chamberControl', {
@@ -930,7 +930,7 @@ function read() {
 				decompValve(90);
 				compValve(0);
 				sessionStartBit(0);
-				//doorOpen();
+				doorOpen();
 				sessionStatus.durum = 0;
 				sessionStatus.uyariyenile = 1;
 				sessionStatus.uyaridurum = 1;
@@ -964,7 +964,7 @@ function read() {
 					ilksure: 0,
 					ilkfsw: 0,
 					fswd: 0,
-                                        pauseDepth: 0,
+					pauseDepth: 0,
 					doorSensorStatus: 0,
 					doorStatus: 0,
 					pressure: 0,
@@ -1048,11 +1048,11 @@ function read_demo() {
 
 	if (sessionStatus.status > 0) sessionStatus.zaman++;
 
-	// if (sessionStatus.status == 1 && sessionStatus.doorStatus == 0) {
-	//     console.log("door closing")
-	//     alarmSet('sessionStarting', 'Session Starting', 0);
-	//     //doorClose();
-	// }
+	if (sessionStatus.status == 1 && sessionStatus.doorStatus == 0) {
+		console.log('door closing');
+		alarmSet('sessionStarting', 'Session Starting', 0);
+		doorClose();
+	}
 
 	// Sistem aktifse kontrol et
 	if (sessionStatus.status > 0 && sessionStatus.zaman > 5) {
@@ -1375,7 +1375,7 @@ function read_demo() {
 			) {
 				alarmSet('endOfSession', 'Session Finished.', 0);
 				sessionStartBit(0);
-				//doorOpen();
+				doorOpen();
 				sessionStatus.status = 0;
 				sessionStatus.uyariyenile = 1;
 				sessionStatus.uyaridurum = 1;
@@ -1411,7 +1411,7 @@ function read_demo() {
 					ilksure: 0,
 					ilkfsw: 0,
 					fswd: 0,
-                                        pauseDepth: 0,
+					pauseDepth: 0,
 					doorSensorStatus: 0,
 					doorStatus: 0,
 					pressure: 0,
