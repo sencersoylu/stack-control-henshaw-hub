@@ -155,6 +155,7 @@ async function init() {
 			compValve(0);
 			decompValve(0);
 			sessionStartBit(0);
+			socket.emit('writeBit', { register: 'M0103', value: 0 });
 
 			//socket.emit('writeRegister', JSON.stringify({address: "R03904", value: 8000}));
 		});
