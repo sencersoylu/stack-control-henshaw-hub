@@ -26,7 +26,13 @@ db.sequelize.sync({});
 init();
 const allRoutes = require('./src/routes');
 
-let sensorData = {};
+let sensorData = {
+	pressure: 0,
+	o2: 0,
+	co2: 0,
+	temperature: 0,
+	humidity: 0,
+};
 
 let o2Timer = null;
 
@@ -76,6 +82,7 @@ let sessionStatus = {
 	pressure: 0,
 
 	o2: 0,
+	co2: 0,
 	bufferdifference: [],
 	olcum: [],
 	ventil: 0,
@@ -194,6 +201,20 @@ async function init() {
 					sensorCalibrationData['humidity'].sensorDecimal
 				);
 
+				if (sensorCalibrationData['co2']) {
+					sensorData['co2'] = linearConversion(
+						sensorCalibrationData['co2'].sensorLowerLimit,
+						sensorCalibrationData['co2'].sensorUpperLimit,
+						sensorCalibrationData['co2'].sensorAnalogLower,
+						sensorCalibrationData['co2'].sensorAnalogUpper,
+						dataObject.data[6],
+						sensorCalibrationData['co2'].sensorDecimal
+					);
+				} else {
+					sensorData['co2'] = Number(dataObject.data[6]);
+				}
+				sessionStatus.co2 = sensorData['co2'];
+
 				if (dataObject.data[1] < 2000) {
 					sessionStatus.chamberStatus = 0;
 					sessionStatus.chamberStatusText = 'Pressure sensor problem';
@@ -209,6 +230,12 @@ async function init() {
 				} else if (dataObject.data[5] < 2000) {
 					sessionStatus.chamberStatus = 0;
 					sessionStatus.chamberStatusText = 'Humidity sensor problem';
+					sessionStatus.chamberStatusTime = dayjs().format(
+						'YYYY-MM-DD HH:mm:ss'
+					);
+				} else if (dataObject.data[6] < 2000) {
+					sessionStatus.chamberStatus = 0;
+					sessionStatus.chamberStatusText = 'CO2 sensor problem';
 					sessionStatus.chamberStatusTime = dayjs().format(
 						'YYYY-MM-DD HH:mm:ss'
 					);
@@ -484,6 +511,7 @@ setInterval(() => {
 		socket.emit('sensorData', {
 			pressure: sensorData['pressure'],
 			o2: sensorData['o2'],
+			co2: sensorData['co2'],
 			temperature: sensorData['temperature'],
 			humidity: sensorData['humidity'],
 			sessionStatus: sessionStatus,
@@ -500,6 +528,7 @@ function read() {
 	socket.emit('sensorData', {
 		pressure: sensorData['pressure'],
 		o2: sensorData['o2'],
+		co2: sensorData['co2'],
 		temperature: sensorData['temperature'],
 		humidity: sensorData['humidity'],
 		sessionStatus: sessionStatus,
@@ -931,6 +960,7 @@ function read() {
 					doorStatus: 0,
 					pressure: 0,
 					o2: 0,
+					co2: 0,
 					bufferdifference: [],
 					olcum: [],
 					ventil: 0,
@@ -1047,12 +1077,14 @@ function read_demo() {
 		sensorData['o2'] = 21.1;
 		sensorData['temperature'] = 22.5 + (Math.random() * 2 - 1); // 21.5-23.5°C
 		sensorData['humidity'] = 45 + (Math.random() * 10 - 5); // 40-50%
+		sensorData['co2'] = 500 + (Math.random() * 20 - 10); // ~500ppm
 
 		// Update session status with simulated data
 		sensorData['pressure'] = sessionStatus.hedef / 33.4;
 		sessionStatus.pressure = sessionStatus.hedef / 33.4;
 		sessionStatus.main_fsw = sessionStatus.hedef / 33.4;
 		sessionStatus.o2 = sensorData['o2'];
+		sessionStatus.co2 = sensorData['co2'];
 
 		// Çıkış durumunda hedefi sıfırla
 		if (
@@ -1382,6 +1414,7 @@ function read_demo() {
 					doorStatus: 0,
 					pressure: 0,
 					o2: 0,
+					co2: 0,
 					bufferdifference: [],
 					olcum: [],
 					ventil: 0,
